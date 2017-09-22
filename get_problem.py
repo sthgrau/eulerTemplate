@@ -52,45 +52,45 @@ DEBUG0=False
 PROBLEMDIR="problem_descriptions"
 
 def getProblemDescription(problemId):
-  try:
-    f = urllib2.urlopen("%s%s" % (URLTEMPLATE,problemId))
-    
-    fs = f.read()
-    f.close()
-    p = myParser()
-    p.feed(fs)
-    myresult = p.problemData 
-    myfile = open("%s/problem%s.txt" % (PROBLEMDIR,problemId),"w")
-    myfile.write(myresult)
-    myfile.close()
-    return True
-  except:
-    e = sys.exc_info()[0]
-    if DEBUG0: print "error = %s" % (e)
-    return False
+    try:
+        if not path.isfile("%s/problem%s.txt" % (PROBLEMDIR,problemId)):
+            f = urllib2.urlopen("%s%s" % (URLTEMPLATE,problemId))
+        
+            fs = f.read()
+            f.close()
+            p = myParser()
+            p.feed(fs)
+            myresult = p.problemData 
+            myfile = open("%s/problem%s.txt" % (PROBLEMDIR,problemId),"w")
+            myfile.write(myresult)
+            myfile.close()
+            return True
+    except:
+        e = sys.exc_info()[0]
+        if DEBUG0: print "error = %s" % (e)
+        return False
 
 def getProblems(max=700):
-  ps = sorted([int(re.search("problem([0-9]*).txt",x).group(1)) for x in listdir(PROBLEMDIR)])
-  if len(ps) > 0:
-    last=ps[-1]
-  else:
-    last=0
-  next=last + 1
-  print next
-  while getProblemDescription(next) and next < max:
-    time.sleep(2)
-    next=next + 1
-  problemId=1
-  if path.isdir("python"):
-    while path.isfile("%s/problem%s.txt" % (PROBLEMDIR,problemId)):
-      dst="python/%s.py" % (problemId)
-      src="%s/problem%s.txt" % (PROBLEMDIR,problemId)
-      if not path.isfile(dst):
-        y = open(src,"r")
-        ys = y.read()
-        y.close()
-        x = open(dst, "w")
-        x.write("""#!/usr/bin/env python
+    ps = sorted([int(re.search("problem([0-9]*).txt",x).group(1)) for x in listdir(PROBLEMDIR)])
+    if len(ps) > 0:
+        last=ps[-1]
+    else:
+        last=0
+    next=last + 1
+    while ( next < max ) and getProblemDescription(next):
+        time.sleep(2)
+        next=next + 1
+    problemId=1
+    if path.isdir("python"):
+        while path.isfile("%s/problem%s.txt" % (PROBLEMDIR,problemId)):
+            dst="python/%s.py" % (problemId)
+            src="%s/problem%s.txt" % (PROBLEMDIR,problemId)
+            if not path.isfile(dst):
+                y = open(src,"r")
+                ys = y.read()
+                y.close()
+                x = open(dst, "w")
+                x.write("""#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 \"\"\"
 %s
@@ -101,14 +101,14 @@ if __name__ == '__main__':
     sys.exit(0)
 """ %(ys))
 
-        x.close()
-      problemId+=1
+                x.close()
+            problemId+=1
 
 
 if __name__ == '__main__':
-  if len(sys.argv) > 1:
-    max=sys.argv[1]
-  else:
-    max=20
-  getProblems(max)
-  sys.exit(0)
+    if len(sys.argv) > 1:
+        max=int(sys.argv[1])
+    else:
+        max=20
+    getProblems(max)
+    sys.exit(0)

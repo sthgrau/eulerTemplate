@@ -7,3 +7,7 @@ To use:
 * clone this repository
 * create python subdirectory
 * run the get_problems.py script
+
+
+I added make functionality to be able to run the tests. Right now, only made for python, but can be adapter for other languages.
+Just run "make python" at the top level. Any scripts modified after the last report will be run and its result and performance stats gathered together in json format.
