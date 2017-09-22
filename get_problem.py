@@ -3,6 +3,7 @@ from HTMLParser import HTMLParser
 import urllib2
 import sys
 import re
+import os
 import time
 from os import listdir
 from os import path
@@ -49,11 +50,12 @@ class myParser(HTMLParser):
 
 URLTEMPLATE="https://projecteuler.net/problem="
 DEBUG0=False
-PROBLEMDIR="problem_descriptions"
+PROBLEMDIR="../problem_descriptions"
+SOLUTIONDIR="solutions"
 
 def getProblemDescription(problemId):
     try:
-        if not path.isfile("%s/problem%s.txt" % (PROBLEMDIR,problemId)):
+        if not path.isfile("%s/%s.txt" % (PROBLEMDIR,problemId)):
             f = urllib2.urlopen("%s%s" % (URLTEMPLATE,problemId))
         
             fs = f.read()
@@ -61,7 +63,7 @@ def getProblemDescription(problemId):
             p = myParser()
             p.feed(fs)
             myresult = p.problemData 
-            myfile = open("%s/problem%s.txt" % (PROBLEMDIR,problemId),"w")
+            myfile = open("%s/%s.txt" % (PROBLEMDIR,problemId),"w")
             myfile.write(myresult)
             myfile.close()
             return True
@@ -71,7 +73,7 @@ def getProblemDescription(problemId):
         return False
 
 def getProblems(max=700):
-    ps = sorted([int(re.search("problem([0-9]*).txt",x).group(1)) for x in listdir(PROBLEMDIR)])
+    ps = sorted([int(re.search("([0-9]*).txt",x).group(1)) for x in listdir(PROBLEMDIR)])
     if len(ps) > 0:
         last=ps[-1]
     else:
@@ -82,9 +84,9 @@ def getProblems(max=700):
         next=next + 1
     problemId=1
     if path.isdir("python"):
-        while path.isfile("%s/problem%s.txt" % (PROBLEMDIR,problemId)):
+        while path.isfile("%s/%s.txt" % (PROBLEMDIR,problemId)):
             dst="python/%s.py" % (problemId)
-            src="%s/problem%s.txt" % (PROBLEMDIR,problemId)
+            src="%s/%s.txt" % (PROBLEMDIR,problemId)
             if not path.isfile(dst):
                 y = open(src,"r")
                 ys = y.read()
@@ -106,6 +108,7 @@ if __name__ == '__main__':
 
 
 if __name__ == '__main__':
+    os.chdir(SOLUTIONDIR)
     if len(sys.argv) > 1:
         max=int(sys.argv[1])
     else:
